@@ -3,7 +3,17 @@ import cheerio from "cheerio";
 import { AdData } from "./interfaces/dbInterface";
 
 async function scrapeData(): Promise<AdData[]> {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: false,
+    executablePath: "/usr/bin/google-chrome",
+    args: [
+      "--disable-gpu",
+      "--disable-dev-shm-usage",
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+    ],
+  });
   const page = await browser.newPage();
   const url = "https://www.sreality.cz/en/search/for-sale/apartments";
   let pageNumber = 1;
