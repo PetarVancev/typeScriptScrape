@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: me
+      POSTGRES_PASSWORD: petar
+      POSTGRES_DB: ads
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5433"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docker"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+  server:
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    build: ./server
+  client:
+    networks:
+      - app_net
+    build: ./client
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server
+
+networks:
+  app_net:
+    driver: bridge

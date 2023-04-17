@@ -1,13 +1,14 @@
 import puppeteer from "puppeteer";
 import cheerio from "cheerio";
-import fs from "fs";
+import { AdData } from "./interfaces/dbInterface";
 
-async function scrapeData() {
+async function scrapeData(): Promise<AdData[]> {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   const url = "https://www.sreality.cz/en/search/for-sale/apartments";
   let pageNumber = 1;
-  let data: { title: string; imgUrl: string }[] = [];
+  let id = 1;
+  let data: AdData[] = [];
 
   while (pageNumber <= 25) {
     await page.goto(url + "?page=" + pageNumber, {
@@ -20,11 +21,17 @@ async function scrapeData() {
 
     $(".property").each(function () {
       const title = $(this).find(".name").text().trim();
-      const imgUrl = $(this).find("img:first-of-type").attr("src");
-      console.log(imgUrl);
+      const imgUrl = $(this).find("img:first-of-type").attr("src") as string;
+      const singleData: AdData = {
+        id: id,
+        title: title,
+        imgurl: imgUrl,
+      };
+
       if (title && imgUrl) {
-        data.push({ title, imgUrl });
+        data.push(singleData);
       }
+      id++;
     });
 
     pageNumber++;
@@ -32,7 +39,7 @@ async function scrapeData() {
 
   await browser.close();
 
-  fs.writeFileSync("output.json", JSON.stringify(data));
+  return data;
 }
 
-scrapeData();
+export default scrapeData;

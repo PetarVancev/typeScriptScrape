@@ -1,0 +1,7 @@
+CREATE DATABASE mydb;
+\c mydb;
+CREATE TABLE ads (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(200),
+  imgurl VARCHAR(200)
+);
